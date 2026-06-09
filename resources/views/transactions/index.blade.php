@@ -1,0 +1,326 @@
+@extends('layouts.app')
+@section('title', 'Lançamentos')
+
+@section('content')
+<div class="topbar">
+    <span class="topbar-title">Lançamentos</span>
+    <div class="topbar-actions">
+        @if(auth()->user()->isAdmin())
+            <button class="btn btn-primary" onclick="openModal('modal-novo')">
+                <i class="ti ti-plus"></i>Novo lançamento
+            </button>
+        @endif
+    </div>
+</div>
+
+<div class="content">
+    {{-- Filtros --}}
+    <form method="GET" action="{{ route('transactions.index') }}">
+        <div class="filter-row">
+            <a href="{{ route('transactions.index') }}" class="chip {{ empty($filters['status']) ? 'active-chip' : '' }}">Todos</a>
+            <a href="{{ route('transactions.index', array_merge($filters, ['status' => 'PAID'])) }}" class="chip {{ ($filters['status'] ?? '') === 'PAID' ? 'active-chip' : '' }}">Pagos</a>
+            <a href="{{ route('transactions.index', array_merge($filters, ['status' => 'PENDING'])) }}" class="chip {{ ($filters['status'] ?? '') === 'PENDING' ? 'active-chip' : '' }}">Em aberto</a>
+            <div style="flex:1"></div>
+            <select name="bank_account_id" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+                <option value="">Todas as contas</option>
+                @foreach($bankAccounts as $account)
+                    <option value="{{ $account->id }}" {{ ($filters['bank_account_id'] ?? '') == $account->id ? 'selected' : '' }}>
+                        {{ $account->name }}
+                    </option>
+                @endforeach
+            </select>
+            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+        </div>
+    </form>
+
+    {{-- Tabela de lançamentos --}}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th><th>Descrição</th><th>Categoria</th><th>Conta</th>
+                    <th>Tipo</th><th>Valor</th><th>NF</th><th>Status</th><th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($transactions as $tx)
+                    <tr>
+                        <td>{{ $tx->due_date->format('d/m/Y') }}</td>
+                        <td>{{ $tx->description }}</td>
+                        <td>{{ $tx->category->name ?? '—' }}</td>
+                        <td>{{ $tx->bankAccount->name }}</td>
+                        <td><span class="tag {{ $tx->transaction_type->cssClass() }}">{{ $tx->transaction_type->label() }}</span></td>
+                        <td style="color:{{ $tx->isIncome() ? 'var(--color-text-success)' : 'var(--color-text-danger)' }};font-weight:500">
+                            R$ {{ number_format($tx->amount, 2, ',', '.') }}
+                        </td>
+                        <td>
+                            @if($tx->invoice_document_url)
+                                <a href="{{ asset('storage/' . $tx->invoice_document_url) }}" target="_blank" title="Ver nota fiscal">
+                                    <i class="ti ti-file-invoice" style="color:var(--color-text-info);font-size:15px"></i>
+                                </a>
+                            @else
+                                —
+                            @endif
+                        </td>
+                        <td><span class="badge {{ $tx->status->badgeClass() }}">{{ $tx->status->label() }}</span></td>
+                        <td>
+                            <div class="action-cell">
+                                @if($tx->isPending() && auth()->user()->isAdmin())
+                                    <form method="POST" action="{{ route('transactions.pay', $tx) }}" style="display:inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm"><i class="ti ti-check"></i>Pagar</button>
+                                    </form>
+                                    <i class="ti ti-edit action-icon" onclick="openModal('modal-edit-{{ $tx->id }}')" title="Editar"></i>
+                                @endif
+                                @if($tx->isPaid())
+                                    <i class="ti ti-eye action-icon" onclick="openModal('modal-detail-{{ $tx->id }}')" title="Ver detalhes"></i>
+                                @endif
+                                @if(auth()->user()->canDeleteTransactions())
+                                    <form method="POST" action="{{ route('transactions.destroy', $tx) }}" style="display:inline"
+                                          onsubmit="return confirm('Excluir este lançamento?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" style="background:none;border:none;cursor:pointer;padding:0">
+                                            <i class="ti ti-trash action-icon" style="color:var(--color-text-danger)" title="Excluir"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="9" style="color:var(--color-text-tertiary);text-align:center">Nenhum lançamento encontrado.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    {{-- Paginação --}}
+    @if($transactions->hasPages())
+        {{ $transactions->appends($filters)->links() }}
+    @endif
+</div>
+
+{{-- Modal: Novo lançamento --}}
+<div class="modal-overlay" id="modal-novo">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Novo lançamento</h3>
+            <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-novo')"></i>
+        </div>
+        <form method="POST" action="{{ route('transactions.store') }}" enctype="multipart/form-data">
+            @csrf
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <select name="transaction_type" id="new-type" required>
+                        <option value="INCOME">Entrada</option>
+                        <option value="EXPENSE">Saída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data de vencimento</label>
+                    <input type="date" name="due_date" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <input type="text" name="description" placeholder="Ex: Serviço de consultoria" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Valor (R$)</label>
+                    <input type="number" name="amount" step="0.01" min="0.01" placeholder="0,00" required
+                           id="new-amount" onchange="checkImpact()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Conta bancária</label>
+                    <select name="bank_account_id" id="new-account" required onchange="checkImpact()">
+                        @foreach($bankAccounts as $account)
+                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            {{-- Alerta de saldo negativo (RF04) --}}
+            <div class="alert alert-danger" id="balance-alert" style="display:none">
+                <i class="ti ti-alert-triangle"></i>
+                <span id="balance-alert-msg"></span>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select name="category_id">
+                        <option value="">— Selecione —</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cliente (opcional)</label>
+                    <select name="client_id">
+                        <option value="">— Nenhum —</option>
+                        @foreach($clients as $client)
+                            <option value="{{ $client->id }}">{{ $client->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nota fiscal <span style="color:var(--color-text-tertiary);font-size:11px">(opcional — PDF, JPG, PNG até 5MB)</span></label>
+                <input type="file" name="invoice_document" style="padding:5px" accept=".pdf,.jpg,.jpeg,.png">
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+                <button type="button" class="btn" onclick="closeModal('modal-novo')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Modais de detalhe para lançamentos pagos --}}
+@foreach($transactions->where('status.value', 'PAID') as $tx)
+<div class="modal-overlay" id="modal-detail-{{ $tx->id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Detalhes do lançamento</h3>
+            <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-detail-{{ $tx->id }}')"></i>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Descrição</span><p style="font-weight:500;margin-top:2px">{{ $tx->description }}</p></div>
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Data vencimento</span><p style="font-weight:500;margin-top:2px">{{ $tx->due_date->format('d/m/Y') }}</p></div>
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Valor</span><p style="font-weight:500;margin-top:2px;color:{{ $tx->isIncome() ? 'var(--color-text-success)' : 'var(--color-text-danger)' }}">R$ {{ number_format($tx->amount, 2, ',', '.') }}</p></div>
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Conta</span><p style="font-weight:500;margin-top:2px">{{ $tx->bankAccount->name }}</p></div>
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Categoria</span><p style="font-weight:500;margin-top:2px">{{ $tx->category->name ?? '—' }}</p></div>
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Status</span><p style="margin-top:4px"><span class="badge badge-success">Pago</span></p></div>
+            @if($tx->payment_date)
+            <div><span style="color:var(--color-text-secondary);font-size:12px">Data pagamento</span><p style="font-weight:500;margin-top:2px">{{ $tx->payment_date->format('d/m/Y') }}</p></div>
+            @endif
+        </div>
+        <div style="margin-top:14px;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px">
+            <i class="ti ti-lock" style="font-size:14px"></i>
+            Lançamento pago — edição bloqueada (RF03)
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px">
+            <button class="btn" onclick="closeModal('modal-detail-{{ $tx->id }}')">Fechar</button>
+        </div>
+    </div>
+</div>
+@endforeach
+
+{{-- Modais de edição para lançamentos pendentes --}}
+@foreach($transactions->where('status.value', 'PENDING') as $tx)
+<div class="modal-overlay" id="modal-edit-{{ $tx->id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Editar lançamento</h3>
+            <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-edit-{{ $tx->id }}')"></i>
+        </div>
+        <form method="POST" action="{{ route('transactions.update', $tx) }}" enctype="multipart/form-data">
+            @csrf @method('PUT')
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <select name="transaction_type" required>
+                        <option value="INCOME" {{ $tx->transaction_type->value === 'INCOME' ? 'selected' : '' }}>Entrada</option>
+                        <option value="EXPENSE" {{ $tx->transaction_type->value === 'EXPENSE' ? 'selected' : '' }}>Saída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data de vencimento</label>
+                    <input type="date" name="due_date" value="{{ $tx->due_date->format('Y-m-d') }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <input type="text" name="description" value="{{ $tx->description }}" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Valor (R$)</label>
+                    <input type="number" name="amount" step="0.01" min="0.01" value="{{ $tx->amount }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Conta bancária</label>
+                    <select name="bank_account_id" required>
+                        @foreach($bankAccounts as $account)
+                            <option value="{{ $account->id }}" {{ $tx->bank_account_id == $account->id ? 'selected' : '' }}>{{ $account->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select name="category_id">
+                        <option value="">— Selecione —</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ $tx->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cliente (opcional)</label>
+                    <select name="client_id">
+                        <option value="">— Nenhum —</option>
+                        @foreach($clients as $client)
+                            <option value="{{ $client->id }}" {{ $tx->client_id == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nota fiscal <span style="color:var(--color-text-tertiary);font-size:11px">(opcional — PDF, JPG, PNG até 5MB)</span></label>
+                <input type="file" name="invoice_document" style="padding:5px" accept=".pdf,.jpg,.jpeg,.png">
+                @if($tx->invoice_document_url)
+                    <span style="font-size:11px;color:var(--color-text-tertiary);margin-top:4px;display:block">Já possui arquivo anexado.</span>
+                @endif
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+                <button type="button" class="btn" onclick="closeModal('modal-edit-{{ $tx->id }}')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endforeach
+
+@push('scripts')
+<script>
+    /**
+     * RF04 — Verificação de impacto no saldo via AJAX.
+     */
+    function checkImpact() {
+        const amount = parseFloat(document.getElementById('new-amount').value);
+        const type = document.getElementById('new-type').value;
+        const accountId = document.getElementById('new-account').value;
+
+        if (!amount || amount <= 0 || type !== 'EXPENSE') {
+            document.getElementById('balance-alert').style.display = 'none';
+            return;
+        }
+
+        fetch("{{ route('transactions.check-impact') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+            },
+            body: JSON.stringify({ bank_account_id: accountId, amount, transaction_type: type }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            const alert = document.getElementById('balance-alert');
+            if (data.will_be_negative) {
+                document.getElementById('balance-alert-msg').textContent =
+                    `Atenção: A conta "${data.account_name}" ficará negativa! Saldo projetado: R$ ${data.projected_balance.toFixed(2).replace('.', ',')}`;
+                alert.style.display = 'flex';
+            } else {
+                alert.style.display = 'none';
+            }
+        });
+    }
+</script>
+@endpush
+@endsection
