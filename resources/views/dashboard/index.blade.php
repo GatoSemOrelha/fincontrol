@@ -27,44 +27,44 @@
     @foreach($negativeAccounts as $account)
         <div class="alert alert-danger">
             <i class="ti ti-alert-triangle"></i>
-            Conta <strong>{{ $account->name }}</strong> está negativa — saldo: R$ {{ number_format($account->current_balance, 2, ',', '.') }}
+            {{ __('Conta') }} <strong>{{ $account->name }}</strong> {{ __('está negativa — saldo:') }} R$ {{ number_format($account->current_balance, 2, ',', '.') }}
         </div>
     @endforeach
 
     {{-- Métricas do mês --}}
     <div class="metrics-row">
         <div class="metric-card">
-            <div class="metric-label">Saldo consolidado</div>
+            <div class="metric-label">{{ __('Saldo consolidado') }}</div>
             <div class="metric-value" style="color:{{ $consolidatedBalance >= 0 ? 'var(--color-text-success)' : 'var(--color-text-danger)' }}">
                 R$ {{ number_format($consolidatedBalance, 2, ',', '.') }}
             </div>
-            <div class="metric-sub">todas as contas</div>
+            <div class="metric-sub">{{ __('todas as contas') }}</div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Receitas no mês</div>
+            <div class="metric-label">{{ __('Receitas no mês') }}</div>
             <div class="metric-value" style="color:var(--color-text-success)">
                 R$ {{ number_format($totals['total_income'], 2, ',', '.') }}
             </div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Despesas no mês</div>
+            <div class="metric-label">{{ __('Despesas no mês') }}</div>
             <div class="metric-value" style="color:var(--color-text-danger)">
                 R$ {{ number_format($totals['total_expense'], 2, ',', '.') }}
             </div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Em aberto</div>
+            <div class="metric-label">{{ __('Em aberto') }}</div>
             <div class="metric-value" style="color:var(--color-text-warning)">
                 R$ {{ number_format($totals['pending_amount'], 2, ',', '.') }}
             </div>
-            <div class="metric-sub">{{ $totals['pending_count'] }} lançamentos</div>
+            <div class="metric-sub">{{ $totals['pending_count'] }} {{ __('lançamentos') }}</div>
         </div>
     </div>
 
     <div class="grid-2">
         {{-- Saldo por conta --}}
         <div class="card">
-            <div class="section-title">Saldo por conta</div>
+            <div class="section-title">{{ __('Saldo por conta') }}</div>
             @foreach($accounts as $account)
                 <div class="bar-row" style="cursor:pointer" onclick="location.href='{{ route('bank-accounts.index') }}'">
                     <div class="bar-label">
@@ -86,7 +86,7 @@
 
         {{-- Receitas por categoria --}}
         <div class="card">
-            <div class="section-title">Receitas por categoria</div>
+            <div class="section-title">{{ __('Receitas por categoria') }}</div>
             @foreach($incomeByCategory as $cat)
                 <div class="bar-row">
                     <div class="bar-label">
@@ -99,7 +99,7 @@
                 </div>
             @endforeach
             @if(empty($incomeByCategory))
-                <div style="font-size:12px;color:var(--color-text-tertiary)">Nenhuma receita no período.</div>
+                <div style="font-size:12px;color:var(--color-text-tertiary)">{{ __('Nenhuma receita no período.') }}</div>
             @endif
         </div>
     </div>
@@ -107,15 +107,15 @@
     {{-- Receitas por cliente --}}
     <div class="card">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
-            Receitas por cliente
+            {{ __('Receitas por cliente') }}
             <a href="{{ route('reports.export-pdf', ['year' => $year, 'month' => $month]) }}" class="btn" style="font-size:12px">
-                <i class="ti ti-download"></i>Exportar PDF
+                <i class="ti ti-download"></i>{{ __('Exportar PDF') }}
             </a>
         </div>
         <div class="table-wrap" style="border:none;border-radius:0">
             <table>
                 <thead>
-                    <tr><th>Cliente</th><th>Receita</th><th>Lançamentos</th><th>Participação</th></tr>
+                    <tr><th>{{ __('Cliente') }}</th><th>{{ __('Receita') }}</th><th>{{ __('Lançamentos') }}</th><th>{{ __('Participação') }}</th></tr>
                 </thead>
                 <tbody>
                     @forelse($incomeByClient as $client)
@@ -126,7 +126,7 @@
                             <td>{{ $client['percentage'] }}%</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" style="color:var(--color-text-tertiary)">Nenhuma receita por cliente no período.</td></tr>
+                        <tr><td colspan="4" style="color:var(--color-text-tertiary)">{{ __('Nenhuma receita por cliente no período.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>

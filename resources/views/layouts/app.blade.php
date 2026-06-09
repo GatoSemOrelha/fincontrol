@@ -21,59 +21,65 @@
         </div>
         <div class="sidebar-inner">
             <div class="nav-section">
-                <div class="nav-label">Principal</div>
+                <div class="nav-label">{{ __('Principal') }}</div>
                 <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="ti ti-layout-dashboard"></i>Dashboard
+                    <i class="ti ti-layout-dashboard"></i>{{ __('Dashboard') }}
                 </a>
                 <a href="{{ route('transactions.index') }}" class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
-                    <i class="ti ti-list"></i>Lançamentos
+                    <i class="ti ti-list"></i>{{ __('Lançamentos') }}
                 </a>
                 <a href="{{ route('bank-accounts.index') }}" class="nav-item {{ request()->routeIs('bank-accounts.*') ? 'active' : '' }}">
-                    <i class="ti ti-credit-card"></i>Contas bancárias
+                    <i class="ti ti-credit-card"></i>{{ __('Contas bancárias') }}
                 </a>
                 <a href="{{ route('categories.index') }}" class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
-                    <i class="ti ti-tag"></i>Categorias
+                    <i class="ti ti-tag"></i>{{ __('Categorias') }}
                 </a>
                 <a href="{{ route('credit-cards.index') }}" class="nav-item {{ request()->routeIs('credit-cards.*') ? 'active' : '' }}">
-                    <i class="ti ti-credit-card"></i>Cartões de crédito
+                    <i class="ti ti-credit-card"></i>{{ __('Cartões de crédito') }}
                 </a>
                 <a href="{{ route('investments.index') }}" class="nav-item {{ request()->routeIs('investments.*') ? 'active' : '' }}">
-                    <i class="ti ti-chart-line"></i>Investimentos
+                    <i class="ti ti-chart-line"></i>{{ __('Investimentos') }}
                 </a>
             </div>
             <div class="nav-section">
-                <div class="nav-label">Cadastros</div>
+                <div class="nav-label">{{ __('Cadastros') }}</div>
                 <a href="{{ route('clients.index') }}" class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
-                    <i class="ti ti-briefcase"></i>Clientes
+                    <i class="ti ti-briefcase"></i>{{ __('Clientes') }}
                 </a>
                 <a href="{{ route('invoices.index') }}" class="nav-item {{ request()->routeIs('invoices.*') ? 'active' : '' }}">
-                    <i class="ti ti-receipt-2"></i>Parcelamentos
+                    <i class="ti ti-receipt-2"></i>{{ __('Parcelamentos') }}
                 </a>
                 <a href="{{ route('recurring-expenses.index') }}" class="nav-item {{ request()->routeIs('recurring-expenses.*') ? 'active' : '' }}">
-                    <i class="ti ti-repeat"></i>Despesas fixas
+                    <i class="ti ti-repeat"></i>{{ __('Despesas fixas') }}
                 </a>
             </div>
             <div class="nav-section">
-                <div class="nav-label">Relatórios</div>
+                <div class="nav-label">{{ __('Relatórios') }}</div>
                 <a href="{{ route('reports.index') }}" class="nav-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
-                    <i class="ti ti-chart-bar"></i>Relatório mensal
+                    <i class="ti ti-chart-bar"></i>{{ __('Relatório mensal') }}
                 </a>
                 <a href="{{ route('reports.cash-flow') }}" class="nav-item {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}">
-                    <i class="ti ti-trending-up"></i>Fluxo de caixa
+                    <i class="ti ti-trending-up"></i>{{ __('Fluxo de caixa') }}
                 </a>
                 <a href="{{ route('audit.index') }}" class="nav-item {{ request()->routeIs('audit.*') ? 'active' : '' }}">
-                    <i class="ti ti-history"></i>Auditoria
+                    <i class="ti ti-history"></i>{{ __('Auditoria') }}
                 </a>
             </div>
             @if(auth()->user()->isAdmin())
             <div class="nav-section">
-                <div class="nav-label">Configurações</div>
+                <div class="nav-label">{{ __('Configurações') }}</div>
                 <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                    <i class="ti ti-users"></i>Usuários
+                    <i class="ti ti-users"></i>{{ __('Usuários') }}
                 </a>
             </div>
             @endif
         </div>
+        
+        <div class="lang-switcher" style="padding: 15px 24px; display: flex; gap: 15px; justify-content: flex-start; border-top: 1px solid var(--color-border); font-size: 20px; margin-top: auto;">
+            <a href="{{ route('lang.switch', 'pt_BR') }}" style="text-decoration: none; filter: {{ App::getLocale() == 'pt_BR' ? 'grayscale(0)' : 'grayscale(100%) opacity(50%)' }}; transition: 0.2s;" title="Português">🇧🇷</a>
+            <a href="{{ route('lang.switch', 'en') }}" style="text-decoration: none; filter: {{ App::getLocale() == 'en' ? 'grayscale(0)' : 'grayscale(100%) opacity(50%)' }}; transition: 0.2s;" title="English">🇺🇸</a>
+        </div>
+
         <div class="user-pill">
             <div class="avatar">{{ auth()->user()->initials() }}</div>
             <div style="flex:1">
@@ -83,7 +89,7 @@
             <form action="{{ route('logout') }}" method="POST" style="display:inline">
                 @csrf
                 <button type="submit" style="background:none;border:none;cursor:pointer;padding:0">
-                    <i class="ti ti-logout" style="font-size:16px;color:var(--color-text-tertiary)" title="Sair"></i>
+                    <i class="ti ti-logout" style="font-size:16px;color:var(--color-text-tertiary)" title="{{ __('Sair') }}"></i>
                 </button>
             </form>
         </div>
