@@ -252,7 +252,7 @@ fincontrol/
 │   ├── Http/
 │   │   ├── Controllers/           # 12 controllers
 │   │   ├── Middleware/            # CheckRole
-│   │   └── Requests/             # Form Requests
+│   │   └── Requests/              # Form Requests
 │   ├── Jobs/                      # PayCreditCardInvoice, GenerateMonthlyReportPdf
 │   ├── Models/                    # 13 Eloquent models
 │   ├── Policies/                  # Autorização por perfil
@@ -263,13 +263,13 @@ fincontrol/
 │   ├── migrations/                # 13 migrations
 │   └── seeders/                   # Dados iniciais
 ├── docker/                        # Configurações Docker
-│   ├── entrypoint.sh             # Script de inicialização automática
-│   └── php.ini                   # Config PHP customizada
+│   ├── entrypoint.sh              # Script de inicialização automática
+│   └── php.ini                    # Config PHP customizada
 ├── public/
-│   ├── css/app.css               # Design system completo
-│   └── index.php                 # Entry point
+│   ├── css/app.css                # Design system completo
+│   └── index.php                  # Entry point
 ├── resources/views/               # 15 Blade views + layout
-├── routes/web.php                # Todas as rotas
+├── routes/web.php                 # Todas as rotas
 ├── storage/                       # Uploads, cache, logs
 ├── .dockerignore                  # Arquivos ignorados no build
 ├── .env.example                   # Template de configuração
