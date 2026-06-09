@@ -1,6 +1,6 @@
 <div align="center">
   
-  <img src="public/favicon.ico" alt="FinControl Logo" width="120" height="120">
+  <img src="public/logo.svg" alt="FinControl Logo" width="200" height="200">
 
   # FinControl — Gestão Financeira Pessoal e Corporativa
 
