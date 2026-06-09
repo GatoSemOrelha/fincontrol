@@ -3,9 +3,9 @@
 
 @section('content')
 <div class="topbar">
-    <span class="topbar-title">Clientes</span>
+    <span class="topbar-title">{{ __('Clientes') }}</span>
     @if(auth()->user()->isAdmin())
-        <button class="btn btn-primary" onclick="openModal('modal-client')"><i class="ti ti-plus"></i>Novo cliente</button>
+        <button class="btn btn-primary" onclick="openModal('modal-client')"><i class="ti ti-plus"></i>{{ __('Novo cliente') }}</button>
     @endif
 </div>
 
@@ -13,7 +13,7 @@
     <div class="table-wrap">
         <table>
             <thead>
-                <tr><th>Nome</th><th>Lançamentos vinculados</th><th>Ações</th></tr>
+                <tr><th>{{ __('Nome') }}</th><th>{{ __('Lançamentos vinculados') }}</th><th>{{ __('Ações') }}</th></tr>
             </thead>
             <tbody>
                 @forelse($clients as $client)
@@ -38,7 +38,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="3" style="color:var(--color-text-tertiary);text-align:center">Nenhum cliente cadastrado.</td></tr>
+                    <tr><td colspan="3" style="color:var(--color-text-tertiary);text-align:center">{{ __('Nenhum cliente cadastrado.') }}</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -49,18 +49,18 @@
 <div class="modal-overlay" id="modal-client">
     <div class="modal">
         <div class="modal-header">
-            <h3>Novo cliente</h3>
+            <h3>{{ __('Novo cliente') }}</h3>
             <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-client')"></i>
         </div>
         <form method="POST" action="{{ route('clients.store') }}">
             @csrf
             <div class="form-group">
-                <label class="form-label">Nome do cliente</label>
-                <input type="text" name="name" placeholder="Ex: Empresa Alpha Ltda" required>
+                <label class="form-label">{{ __('Nome do cliente') }}</label>
+                <input type="text" name="name" placeholder="{{ __('Ex: Empresa Alpha Ltda') }}" required>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-                <button type="button" class="btn" onclick="closeModal('modal-client')">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn" onclick="closeModal('modal-client')">{{ __('Cancelar') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Salvar') }}</button>
             </div>
         </form>
     </div>

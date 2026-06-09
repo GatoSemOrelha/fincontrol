@@ -14,13 +14,13 @@
             <div class="login-logo">
                 <i class="ti ti-building-bank"></i>
                 <h1>FinControl</h1>
-                <p>Gestão financeira empresarial</p>
+                <p>{{ __('Gestão financeira empresarial') }}</p>
             </div>
             <div class="card">
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div class="form-group">
-                        <label class="form-label" for="email">E-mail</label>
+                        <label class="form-label" for="email">{{ __('E-mail') }}</label>
                         <input type="email" id="email" name="email" placeholder="seu@email.com.br"
                                value="{{ old('email') }}" required autofocus>
                         @error('email')
@@ -28,7 +28,7 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="password">Senha</label>
+                        <label class="form-label" for="password">{{ __('Senha') }}</label>
                         <input type="password" id="password" name="password" placeholder="••••••••" required>
                         @error('password')
                             <div class="form-error">{{ $message }}</div>
@@ -37,16 +37,16 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                         <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer">
                             <input type="checkbox" name="remember" style="width:auto" {{ old('remember') ? 'checked' : '' }}>
-                            Lembrar-me
+                            {{ __('Lembrar-me') }}
                         </label>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">
-                        <i class="ti ti-login"></i>Entrar
+                        <i class="ti ti-login"></i>{{ __('Entrar') }}
                     </button>
                 </form>
             </div>
             <div style="text-align:center;font-size:11px;color:var(--color-text-tertiary);margin-top:12px">
-                RF01 — Autenticação por e-mail e senha
+                {{ __('RF01 — Autenticação por e-mail e senha') }}
             </div>
         </div>
     </div>

@@ -3,19 +3,19 @@
 
 @section('content')
 <div class="topbar">
-    <span class="topbar-title">Projeção de fluxo de caixa — 6 meses</span>
+    <span class="topbar-title">{{ __('Projeção de fluxo de caixa — 6 meses') }}</span>
 </div>
 
 <div class="content">
     <div class="metrics-row" style="margin-bottom:20px">
         <div class="metric-card">
-            <div class="metric-label">Saldo atual (contas)</div>
+            <div class="metric-label">{{ __('Saldo atual (contas)') }}</div>
             <div class="metric-value" style="color:var(--color-text-success)">
                 R$ {{ number_format($projection['current_balance'], 2, ',', '.') }}
             </div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Total em CDB</div>
+            <div class="metric-label">{{ __('Total em CDB') }}</div>
             <div class="metric-value" style="color:var(--color-text-info)">
                 R$ {{ number_format($projection['cdb_total'], 2, ',', '.') }}
             </div>
@@ -23,17 +23,17 @@
     </div>
 
     <div class="card">
-        <div class="section-title">Projeção mensal (RF11)</div>
+        <div class="section-title">{{ __('Projeção mensal (RF11)') }}</div>
         <div class="table-wrap" style="border:none">
             <table>
                 <thead>
                     <tr>
-                        <th>Mês</th>
-                        <th>Receita projetada</th>
-                        <th>Despesa projetada</th>
-                        <th>Resultado</th>
-                        <th>Rendimento CDB</th>
-                        <th>Saldo projetado</th>
+                        <th>{{ __('Mês') }}</th>
+                        <th>{{ __('Receita projetada') }}</th>
+                        <th>{{ __('Despesa projetada') }}</th>
+                        <th>{{ __('Resultado') }}</th>
+                        <th>{{ __('Rendimento CDB') }}</th>
+                        <th>{{ __('Saldo projetado') }}</th>
                     </tr>
                 </thead>
                 <tbody>

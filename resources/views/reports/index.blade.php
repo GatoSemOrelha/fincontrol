@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="topbar">
-    <span class="topbar-title">Relatório mensal</span>
+    <span class="topbar-title">{{ __('Relatório mensal') }}</span>
     <div class="topbar-actions">
         <form method="GET" action="{{ route('reports.index') }}" style="display:flex;gap:8px;align-items:center">
             <select name="month" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
@@ -21,7 +21,7 @@
         </form>
         @if(auth()->user()->isAdmin())
             <a href="{{ route('reports.export-pdf', ['year' => $year, 'month' => $month]) }}" class="btn btn-primary">
-                <i class="ti ti-download"></i>Exportar PDF
+                <i class="ti ti-download"></i>{{ __('Exportar PDF') }}
             </a>
         @endif
     </div>
@@ -31,22 +31,22 @@
     @if($report->is_closed)
         <div class="alert alert-info">
             <i class="ti ti-lock"></i>
-            Relatório fechado em {{ $report->closed_at->format('d/m/Y H:i') }}
-            — dados imutáveis.
+            {{ __('Relatório fechado em') }} {{ $report->closed_at->format('d/m/Y H:i') }}
+            — {{ __('dados imutáveis.') }}
         </div>
     @endif
 
     <div class="metrics-row" style="margin-bottom:20px">
         <div class="metric-card">
-            <div class="metric-label">Receitas</div>
+            <div class="metric-label">{{ __('Receitas') }}</div>
             <div class="metric-value" style="color:var(--color-text-success)">R$ {{ number_format($report->total_income, 2, ',', '.') }}</div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Despesas</div>
+            <div class="metric-label">{{ __('Despesas') }}</div>
             <div class="metric-value" style="color:var(--color-text-danger)">R$ {{ number_format($report->total_expense, 2, ',', '.') }}</div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Resultado líquido</div>
+            <div class="metric-label">{{ __('Resultado líquido') }}</div>
             <div class="metric-value" style="color:{{ $report->net_result >= 0 ? 'var(--color-text-success)' : 'var(--color-text-danger)' }}">
                 R$ {{ number_format($report->net_result, 2, ',', '.') }}
             </div>
@@ -55,7 +55,7 @@
 
     <div class="grid-2">
         <div class="card">
-            <div class="section-title">Receitas por categoria</div>
+            <div class="section-title">{{ __('Receitas por categoria') }}</div>
             @foreach($incomeByCategory as $cat)
                 <div class="bar-row">
                     <div class="bar-label"><span>{{ $cat['category_name'] }}</span><span>R$ {{ number_format($cat['total'], 2, ',', '.') }}</span></div>
@@ -64,7 +64,7 @@
             @endforeach
         </div>
         <div class="card">
-            <div class="section-title">Despesas por categoria</div>
+            <div class="section-title">{{ __('Despesas por categoria') }}</div>
             @foreach($expensesByCategory as $cat)
                 <div class="bar-row">
                     <div class="bar-label"><span>{{ $cat['category_name'] }}</span><span>R$ {{ number_format($cat['total'], 2, ',', '.') }}</span></div>
@@ -80,7 +80,7 @@
                   onsubmit="return confirm('Fechar este relatório? Ele se tornará imutável.')">
                 @csrf
                 <button type="submit" class="btn btn-danger">
-                    <i class="ti ti-lock"></i>Fechar relatório
+                    <i class="ti ti-lock"></i>{{ __('Fechar relatório') }}
                 </button>
             </form>
         </div>

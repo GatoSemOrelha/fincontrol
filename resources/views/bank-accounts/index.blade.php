@@ -3,9 +3,9 @@
 
 @section('content')
 <div class="topbar">
-    <span class="topbar-title">Contas bancárias</span>
+    <span class="topbar-title">{{ __('Contas bancárias') }}</span>
     @if(auth()->user()->isAdmin())
-        <button class="btn btn-primary" onclick="openModal('modal-conta')"><i class="ti ti-plus"></i>Nova conta</button>
+        <button class="btn btn-primary" onclick="openModal('modal-conta')"><i class="ti ti-plus"></i>{{ __('Nova conta') }}</button>
     @endif
 </div>
 
@@ -23,17 +23,17 @@
                 </div>
                 @if($account->isNegative())
                     <div class="alert alert-danger" style="padding:6px 10px;margin-bottom:8px">
-                        <i class="ti ti-alert-triangle"></i>Saldo negativo
+                        <i class="ti ti-alert-triangle"></i>{{ __('Saldo negativo') }}
                     </div>
                 @endif
                 <div class="divider"></div>
                 <div style="font-size:22px;font-weight:500;color:{{ $account->isNegative() ? 'var(--color-text-danger)' : 'var(--color-text-success)' }}">
                     R$ {{ number_format($account->current_balance, 2, ',', '.') }}
                 </div>
-                <div style="font-size:12px;color:var(--color-text-tertiary)">saldo atual</div>
+                <div style="font-size:12px;color:var(--color-text-tertiary)">{{ __('saldo atual') }}</div>
                 <div style="margin-top:12px;display:flex;gap:8px">
                     <a href="{{ route('transactions.index', ['bank_account_id' => $account->id]) }}" class="btn" style="font-size:12px;flex:1;justify-content:center">
-                        <i class="ti ti-list"></i>Extrato
+                        <i class="ti ti-list"></i>{{ __('Extrato') }}
                     </a>
                 </div>
             </div>
@@ -45,22 +45,22 @@
 <div class="modal-overlay" id="modal-conta">
     <div class="modal">
         <div class="modal-header">
-            <h3>Nova conta bancária</h3>
+            <h3>{{ __('Nova conta bancária') }}</h3>
             <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-conta')"></i>
         </div>
         <form method="POST" action="{{ route('bank-accounts.store') }}">
             @csrf
             <div class="form-group">
-                <label class="form-label">Nome da conta</label>
-                <input type="text" name="name" placeholder="Ex: Safra Empresa" required>
+                <label class="form-label">{{ __('Nome da conta') }}</label>
+                <input type="text" name="name" placeholder="{{ __('Ex: Safra Empresa') }}" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Saldo inicial (R$)</label>
+                <label class="form-label">{{ __('Saldo inicial (R$)') }}</label>
                 <input type="number" name="initial_balance" step="0.01" placeholder="0,00" required>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-                <button type="button" class="btn" onclick="closeModal('modal-conta')">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn" onclick="closeModal('modal-conta')">{{ __('Cancelar') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Salvar') }}</button>
             </div>
         </form>
     </div>

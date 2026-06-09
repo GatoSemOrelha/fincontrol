@@ -3,15 +3,15 @@
 
 @section('content')
 <div class="topbar">
-    <span class="topbar-title">Usuários</span>
-    <button class="btn btn-primary" onclick="openModal('modal-user')"><i class="ti ti-plus"></i>Novo usuário</button>
+    <span class="topbar-title">{{ __('Usuários') }}</span>
+    <button class="btn btn-primary" onclick="openModal('modal-user')"><i class="ti ti-plus"></i>{{ __('Novo usuário') }}</button>
 </div>
 
 <div class="content">
     <div class="table-wrap">
         <table>
             <thead>
-                <tr><th>Usuário</th><th>E-mail</th><th>Perfil</th><th>Último acesso</th><th>Status</th><th>Ações</th></tr>
+                <tr><th>{{ __('Usuário') }}</th><th>{{ __('E-mail') }}</th><th>{{ __('Perfil') }}</th><th>{{ __('Último acesso') }}</th><th>{{ __('Status') }}</th><th>{{ __('Ações') }}</th></tr>
             </thead>
             <tbody>
                 @foreach($users as $user)
@@ -33,7 +33,7 @@
                         <td style="font-size:12px">{{ $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : '—' }}</td>
                         <td>
                             <span class="badge {{ $user->is_active ? 'badge-success' : 'badge-warning' }}">
-                                {{ $user->is_active ? 'Ativo' : 'Inativo' }}
+                                {{ $user->is_active ? __('Ativo') : __('Inativo') }}
                             </span>
                         </td>
                         <td><i class="ti ti-edit action-icon" title="Editar"></i></td>
@@ -48,31 +48,31 @@
 <div class="modal-overlay" id="modal-user">
     <div class="modal">
         <div class="modal-header">
-            <h3>Novo usuário</h3>
+            <h3>{{ __('Novo usuário') }}</h3>
             <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-user')"></i>
         </div>
         <form method="POST" action="{{ route('users.store') }}">
             @csrf
             <div class="form-group">
-                <label class="form-label">Nome completo</label>
-                <input type="text" name="username" placeholder="Ex: João Silva" required>
+                <label class="form-label">{{ __('Nome completo') }}</label>
+                <input type="text" name="username" placeholder="{{ __('Ex: João Silva') }}" required>
             </div>
             <div class="form-group">
-                <label class="form-label">E-mail</label>
+                <label class="form-label">{{ __('E-mail') }}</label>
                 <input type="email" name="email" placeholder="joao@empresa.com.br" required>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Senha</label>
+                    <label class="form-label">{{ __('Senha') }}</label>
                     <input type="password" name="password" placeholder="••••••" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Confirmar senha</label>
+                    <label class="form-label">{{ __('Confirmar senha') }}</label>
                     <input type="password" name="password_confirmation" placeholder="••••••" required>
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">Perfil</label>
+                <label class="form-label">{{ __('Perfil') }}</label>
                 <select name="role_id" required>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}">{{ $role->name }} — {{ $role->description }}</option>
@@ -80,8 +80,8 @@
                 </select>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-                <button type="button" class="btn" onclick="closeModal('modal-user')">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn" onclick="closeModal('modal-user')">{{ __('Cancelar') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Salvar') }}</button>
             </div>
         </form>
     </div>
