@@ -42,11 +42,11 @@
                             <td style="font-weight:500">{{ $m['label'] }}</td>
                             <td style="color:var(--color-text-success)">{{ money($m['projected_income']) }}</td>
                             <td style="color:var(--color-text-danger)">{{ money($m['projected_expense']) }}</td>
-                            <td style="color:{{ $m['net'] >= 0 ? 'var(--color-text-success)' : 'var(--color-text-danger)' }}">
+                            <td @style(['color: var(--color-text-success)' => $m['net'] >= 0, 'color: var(--color-text-danger)' => $m['net'] < 0])>
                                 {{ money($m['net']) }}
                             </td>
                             <td style="color:var(--color-text-info)">{{ money($m['cdb_yield']) }}</td>
-                            <td style="font-weight:500;color:{{ $m['total_with_investments'] >= 0 ? 'var(--color-text-success)' : 'var(--color-text-danger)' }}">
+                            <td @style(['font-weight: 500', 'color: var(--color-text-success)' => $m['total_with_investments'] >= 0, 'color: var(--color-text-danger)' => $m['total_with_investments'] < 0])>
                                 {{ money($m['total_with_investments']) }}
                             </td>
                         </tr>
