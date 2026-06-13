@@ -2,8 +2,6 @@
 
 <img src="public/fincontrol.png" alt="FinControl Logo" width="240">
 
-<br><br>
-
 # 🏛️ FinControl
 
 **Sua vida financeira, finalmente sob controle.**
