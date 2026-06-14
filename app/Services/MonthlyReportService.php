@@ -51,16 +51,27 @@ class MonthlyReportService
             ->sum('amount');
 
         // Dados detalhados para o PDF
+        $transactions = Transaction::where('user_id', $userId)
+            ->whereBetween('due_date', [$startDate, $endDate])
+            ->with(['bankAccount', 'category', 'client'])
+            ->orderBy('due_date')
+            ->get();
+
+        $paidCount = $transactions->where('status', 'PAID')->count();
+        $pendingCount = $transactions->where('status', '!=', 'PAID')->count();
+        $pendingTransactions = $transactions->where('status', '!=', 'PAID')->values()->toArray();
+        $margin = $totalIncome > 0 ? round(($totalIncome - $totalExpense) / $totalIncome * 100, 1) : 0;
+
         $reportData = [
             'income_by_client' => $this->reportService->getIncomeByClient($userId, $year, $month),
             'expenses_by_category' => $this->reportService->getExpensesByCategory($userId, $year, $month),
             'income_by_category' => $this->reportService->getIncomeByCategory($userId, $year, $month),
-            'transactions' => Transaction::where('user_id', $userId)
-                ->whereBetween('due_date', [$startDate, $endDate])
-                ->with(['bankAccount', 'category', 'client'])
-                ->orderBy('due_date')
-                ->get()
-                ->toArray(),
+            'transactions' => $transactions->toArray(),
+            'paid_count' => $paidCount,
+            'pending_count' => $pendingCount,
+            'pending_transactions' => $pendingTransactions,
+            'margin' => $margin,
+            'total_transactions' => $transactions->count(),
         ];
 
         $report->fill([
@@ -117,9 +128,8 @@ class MonthlyReportService
      */
     public function downloadPdf(MonthlyReport $report)
     {
-        if (! $report->pdf_path || ! Storage::disk('public')->exists($report->pdf_path)) {
-            $this->generatePdf($report);
-        }
+        // Sempre regenera para garantir que o template mais recente seja usado
+        $this->generatePdf($report);
 
         $safeName = Str::slug($report->periodLabel(), '_');
 
