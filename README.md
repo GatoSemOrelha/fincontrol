@@ -526,11 +526,7 @@ fincontrol/
 
 ---
 
----
-
 <div align="center">
-
----
 
 ### Feito com 💙 e muito ☕
 
