@@ -36,25 +36,32 @@
 
     {{-- Tabela de lançamentos --}}
     <div class="table-wrap">
-        <table>
+        <table class="android-list-table">
             <thead>
                 <tr>
-                    <th>{{ __('Data') }}</th><th>{{ __('Descrição') }}</th><th>{{ __('Categoria') }}</th><th>{{ __('Conta') }}</th>
-                    <th>{{ __('Tipo') }}</th><th>{{ __('Valor') }}</th><th>{{ __('NF') }}</th><th>{{ __('Status') }}</th><th>{{ __('Ações') }}</th>
+                    <th>{{ __('Data') }}</th>
+                    <th>{{ __('Descrição') }}</th>
+                    <th>{{ __('Categoria') }}</th>
+                    <th>{{ __('Conta') }}</th>
+                    <th>{{ __('Tipo') }}</th>
+                    <th>{{ __('Valor') }}</th>
+                    <th>{{ __('NF') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('Ações') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($transactions as $tx)
                     <tr>
-                        <td>{{ $tx->due_date->format('d/m/Y') }}</td>
-                        <td>{{ $tx->description }}</td>
-                        <td>{{ $tx->category->name ?? '—' }}</td>
-                        <td>{{ $tx->bankAccount->name }}</td>
-                        <td><span class="tag {{ $tx->transaction_type->cssClass() }}">{{ $tx->transaction_type->label() }}</span></td>
-                        <td style="color:{{ $tx->isIncome() ? 'var(--color-text-success)' : 'var(--color-text-danger)' }};font-weight:500">
+                        <td data-label="{{ __('Data') }}">{{ $tx->due_date->format('d/m/Y') }}</td>
+                        <td data-label="{{ __('Descrição') }}">{{ $tx->description }}</td>
+                        <td data-label="{{ __('Categoria') }}">{{ $tx->category->name ?? '—' }}</td>
+                        <td data-label="{{ __('Conta') }}">{{ $tx->bankAccount->name }}</td>
+                        <td data-label="{{ __('Tipo') }}"><span class="tag {{ $tx->transaction_type->cssClass() }}">{{ $tx->transaction_type->label() }}</span></td>
+                        <td data-label="{{ __('Valor') }}" style="color:{{ $tx->isIncome() ? 'var(--color-text-success)' : 'var(--color-text-danger)' }};font-weight:500">
                             {{ money($tx->amount) }}
                         </td>
-                        <td>
+                        <td data-label="{{ __('NF') }}">
                             @if($tx->invoice_document_url)
                                 <a href="{{ asset('storage/' . $tx->invoice_document_url) }}" target="_blank" title="{{ __('Ver nota fiscal') }}">
                                     <i class="ti ti-file-invoice" style="color:var(--color-text-info);font-size:15px"></i>
@@ -63,8 +70,8 @@
                                 —
                             @endif
                         </td>
-                        <td><span class="badge {{ $tx->status->badgeClass() }}">{{ $tx->status->label() }}</span></td>
-                        <td>
+                        <td data-label="{{ __('Status') }}"><span class="badge {{ $tx->status->badgeClass() }}">{{ $tx->status->label() }}</span></td>
+                        <td data-label="{{ __('Ações') }}" class="action-cell-td">
                             <div class="action-cell">
                                 @if($tx->isPending() && auth()->user()->isAdmin())
                                     <form method="POST" action="{{ route('transactions.pay', $tx) }}" style="display:inline">

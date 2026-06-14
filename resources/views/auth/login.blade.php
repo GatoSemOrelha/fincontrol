@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — FinControl</title>
     <meta name="description" content="Acesse o sistema de gestão financeira FinControl">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <style>
@@ -173,5 +174,8 @@
 
         </div>
     </div>
+    <script>
+        document.cookie = "client_tz=" + Intl.DateTimeFormat().resolvedOptions().timeZone + "; path=/; max-age=31536000";
+    </script>
 </body>
 </html>
