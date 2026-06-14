@@ -233,7 +233,7 @@
                 <div class="metric-icon-wrap icon-balance"><i class="ti ti-wallet"></i></div>
             </div>
             <div class="metric-value-large" style="color:{{ $consolidatedBalance >= 0 ? '#4ade80' : '#f87171' }}">
-                <span class="metric-currency">R$</span> {{ number_format(abs($consolidatedBalance), 2, ',', '.') }}
+                {{ money($consolidatedBalance) }}
             </div>
             <div class="metric-footer">
                 <i class="ti ti-building-bank"></i> {{ __('Soma de todas as contas') }}
@@ -246,7 +246,7 @@
                 <div class="metric-icon-wrap icon-income"><i class="ti ti-trending-up"></i></div>
             </div>
             <div class="metric-value-large" style="color:#fff">
-                <span class="metric-currency">R$</span> {{ number_format($totalIncome, 2, ',', '.') }}
+                {{ money($totals['total_income'] ?? 0) }}
             </div>
             <div class="metric-footer">
                 @if(isset($variations['income']))
@@ -267,7 +267,7 @@
                 <div class="metric-icon-wrap icon-expense"><i class="ti ti-trending-down"></i></div>
             </div>
             <div class="metric-value-large" style="color:#fff">
-                <span class="metric-currency">R$</span> {{ number_format($totalExpense, 2, ',', '.') }}
+                {{ money($totals['total_expense'] ?? 0) }}
             </div>
             <div class="metric-footer">
                 @if(isset($variations['expense']))
@@ -285,39 +285,20 @@
 
         <div class="metric-card-premium">
             <div class="metric-header">
-                <span class="metric-title">{{ __('Faturas Fechadas') }}</span>
+                <span class="metric-title">{{ __('Contas Bancárias') }}</span>
                 <div class="metric-icon-wrap icon-card"><i class="ti ti-credit-card"></i></div>
             </div>
             <div class="metric-value-large" style="color:#fff">
-                <span class="metric-currency">R$</span> {{ number_format($closedInvoicesTotal, 2, ',', '.') }}
+                {{ count($accounts) }}
             </div>
             <div class="metric-footer">
-                <i class="ti ti-calendar-event"></i> {{ __('Vencimento neste mês') }}
+                <i class="ti ti-calendar-event"></i> {{ __('Contas cadastradas ativas') }}
             </div>
         </div>
     </div>
 
     {{-- Restante do Dashboard - Gráficos e Tabelas --}}
     <div class="metrics-row">
-        {{-- Despesas por categoria --}}
-        <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02)">
-            <div class="section-title">{{ __('Despesas por categoria') }}</div>
-            @foreach($expenseByCategory as $cat)
-                <div class="bar-row">
-                    <div class="bar-label">
-                        <span style="font-weight: 500; color: var(--color-text-secondary)">{{ $cat['category_name'] }}</span>
-                        <span style="font-weight: 600">{{ money($cat['total']) }}</span>
-                    </div>
-                    <div class="progress-bg" style="background: rgba(255,255,255,0.05)">
-                        <div class="progress-fill animate-bar" style="width:{{ $cat['percentage'] }}%;background:linear-gradient(90deg, #f87171, #ef4444);box-shadow: 0 0 10px rgba(239, 68, 68, 0.4)"></div>
-                    </div>
-                </div>
-            @endforeach
-            @if(empty($expenseByCategory))
-                <div style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px 0">{{ __('Nenhuma despesa no período.') }}</div>
-            @endif
-        </div>
-
         {{-- Receitas por categoria --}}
         <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02)">
             <div class="section-title">{{ __('Receitas por categoria') }}</div>
