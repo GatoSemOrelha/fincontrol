@@ -310,7 +310,66 @@ nav .flex-sm-fill { display: flex; flex-direction: column; align-items: center; 
     .form-row, .form-row-3 { grid-template-columns: 1fr; }
     .topbar { padding: 10px 14px; }
     .content { padding: 14px; }
-    .hide-on-mobile { display: none !important; }
+}
+
+/* ─── Mega Otimização Android Portrait (Max 480px) ─── */
+@media (max-width: 480px) {
+    .content { padding: 0 !important; } /* Edge to edge para mais espaço */
+    .table-wrap { border: none !important; border-radius: 0 !important; padding: 0 !important; background: transparent; }
+    
+    .android-list-table, .android-list-table tbody, .android-list-table tr, .android-list-table td { display: block; width: 100%; }
+    .android-list-table thead { display: none; }
+    
+    .android-list-table tr {
+        display: grid;
+        grid-template-areas:
+            "desc value"
+            "date status"
+            "actions actions";
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--color-border-tertiary);
+        background: transparent !important;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    
+    .android-list-table tr:hover { background: rgba(255,255,255,0.03) !important; transform: none; box-shadow: none; }
+    
+    .android-list-table td { padding: 0 !important; border: none !important; color: var(--color-text-primary); text-align: left; display: flex; align-items: center; }
+    
+    /* Mapeamento das Células Nativas do Blade */
+    .android-list-table td:nth-child(1) { grid-area: date; font-size: 13px; color: var(--color-text-tertiary); } /* Data */
+    .android-list-table td:nth-child(2) { grid-area: desc; font-size: 15px; font-weight: 600; line-height: 1.2; } /* Descrição */
+    .android-list-table td:nth-child(3) { display: none !important; } /* Categoria (escondida) */
+    .android-list-table td:nth-child(4) { display: none !important; } /* Conta (escondida) */
+    .android-list-table td:nth-child(5) { display: none !important; } /* Tipo (escondido) */
+    .android-list-table td:nth-child(6) { grid-area: value; font-size: 17px; font-weight: 700; text-align: right; justify-content: flex-end; } /* Valor */
+    .android-list-table td:nth-child(7) { display: none !important; } /* NF (escondido) */
+    .android-list-table td:nth-child(8) { grid-area: status; text-align: right; justify-content: flex-end; } /* Status */
+    .android-list-table td:nth-child(9) { grid-area: actions; margin-top: 14px; justify-content: flex-start; } /* Ações */
+    
+    .android-list-table td .badge { font-size: 11px; padding: 4px 8px; }
+    
+    /* Touch Targets Gigantes para Dedo */
+    .action-cell { width: 100%; display: flex; gap: 12px; }
+    .android-list-table .btn, .android-list-table .action-icon {
+        min-height: 48px;
+        min-width: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 20px;
+    }
+    .android-list-table .btn { padding: 0 24px; font-size: 14px; flex: 1; }
+    
+    /* Filtros Gigantes no Topo */
+    .filter-row { padding: 16px 20px; border-radius: 0; border-left: none; border-right: none; margin-bottom: 0; gap: 12px; }
+    .filter-row select, .filter-row input { height: 48px; width: 100% !important; font-size: 15px !important; border-radius: 12px; padding: 0 16px !important; }
 }
 
 /* ─── Keyframes & Animations ───────────────────────── */
