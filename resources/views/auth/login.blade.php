@@ -16,7 +16,7 @@
     <div class="login-wrap">
         <div class="login-box">
             <div class="login-logo">
-                <img src="{{ asset('logo.svg') }}?v={{ time() }}" alt="FinControl Logo" style="max-height: 80px; margin-bottom: 16px; object-fit: contain;">
+                <img src="{{ asset('logo.png') }}?v={{ time() }}" alt="FinControl Logo" style="max-height: 80px; margin-bottom: 16px; object-fit: contain;">
                 <p>{{ __('Gestão financeira empresarial') }}</p>
             </div>
             <div class="card">
