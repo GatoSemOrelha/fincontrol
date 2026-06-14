@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/fincontrol.svg" alt="FinControl Logo" width="240">
+<img src="public/fincontrol.png" alt="FinControl Logo" width="240">
 
 # 🏛️ FinControl
 
