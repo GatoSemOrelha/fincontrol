@@ -23,6 +23,34 @@
             height: 3px;
             background-color: var(--color-background-info);
         }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--color-text-tertiary);
+            outline: none;
+        }
+        .icon-btn i {
+            font-size: 18px;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .icon-btn:hover {
+            background-color: var(--color-surface-hover);
+            color: var(--color-text-primary);
+        }
+        .icon-btn:hover i {
+            transform: scale(1.15) rotate(8deg);
+        }
+        .icon-btn:active i {
+            transform: scale(0.9);
+        }
 
         /* Fallback nativo do Chrome para caso o Turbo falhe */
         @view-transition {
@@ -49,8 +77,8 @@
 
         {{-- SIDEBAR --}}
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-logo" style="text-align: center;">
-                <img src="{{ asset('logo.png') }}?v={{ time() }}" alt="FinControl Logo" style="max-height: 65px; margin: 10px 0; object-fit: contain;">
+            <div class="sidebar-logo" style="padding: 10px 0; text-align: center;">
+                <img src="{{ asset('logo.png') }}?v={{ time() }}" alt="FinControl Logo" style="max-height: 40px; object-fit: contain;">
             </div>
             <div class="sidebar-inner">
                 <div class="nav-section">
@@ -117,13 +145,13 @@
                     <div style="font-size:12px;font-weight:500">{{ auth()->user()->username }}</div>
                     <div style="font-size:11px;color:var(--color-text-tertiary)">{{ auth()->user()->role->name }}</div>
                 </div>
-                <button id="theme-toggle" style="background:none;border:none;cursor:pointer;padding:0;margin-right:8px" title="Alternar tema">
-                    <i class="ti ti-moon" id="theme-icon" style="font-size:16px;color:var(--color-text-tertiary)"></i>
+                <button id="theme-toggle" class="icon-btn" style="margin-right:4px" title="Alternar tema">
+                    <i class="ti ti-moon" id="theme-icon"></i>
                 </button>
                 <form action="{{ route('logout') }}" method="POST" style="display:inline">
                     @csrf
-                    <button type="submit" style="background:none;border:none;cursor:pointer;padding:0">
-                        <i class="ti ti-logout" style="font-size:16px;color:var(--color-text-tertiary)" title="{{ __('Sair') }}"></i>
+                    <button type="submit" class="icon-btn">
+                        <i class="ti ti-logout" title="{{ __('Sair') }}"></i>
                     </button>
                 </form>
             </div>
