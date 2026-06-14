@@ -298,9 +298,9 @@
     </div>
 
     {{-- Restante do Dashboard - Gráficos e Tabelas --}}
-    <div class="metrics-row">
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-top: 24px;">
         {{-- Receitas por categoria --}}
-        <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02)">
+        <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); display: flex; flex-direction: column;">
             <div class="section-title">{{ __('Receitas por categoria') }}</div>
             @foreach($incomeByCategory as $cat)
                 <div class="bar-row">
@@ -314,13 +314,12 @@
                 </div>
             @endforeach
             @if(empty($incomeByCategory))
-                <div style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px 0">{{ __('Nenhuma receita no período.') }}</div>
+                <div style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px 0;flex:1;display:flex;align-items:center;justify-content:center;">{{ __('Nenhuma receita no período.') }}</div>
             @endif
         </div>
-    </div>
 
-    {{-- Receitas por cliente --}}
-    <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); margin-top: 24px;">
+        {{-- Receitas por cliente --}}
+        <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); display: flex; flex-direction: column;">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px">
             {{ __('Receitas por cliente') }}
             <a href="{{ route('reports.export-pdf', ['year' => $year, 'month' => $month]) }}" class="btn" style="font-size:12px; border-radius:10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1)" data-turbo="false" target="_blank">
@@ -359,7 +358,6 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
     </div>
 </div>
 @endsection
