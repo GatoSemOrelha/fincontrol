@@ -528,6 +528,19 @@ fincontrol/
 
 ---
 
+## 👨‍💻 Equipe e Contribuidores
+
+Um agradecimento especial aos engenheiros que tornaram este projeto possível:
+
+<div align="center">
+  <a href="https://github.com/GatoSemOrelha"><img src="https://avatars.githubusercontent.com/u/262891988?v=4" width="60px;" alt="Felipe" style="border-radius:50%"/><br /><sub><b>Felipe</b></sub></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/Caique-deAzevedo"><img src="https://avatars.githubusercontent.com/u/266412900?v=4" width="60px;" alt="Caique-deAzevedo" style="border-radius:50%"/><br /><sub><b>Caique-deAzevedo</b></sub></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/EduardoPCarvalho"><img src="https://avatars.githubusercontent.com/u/213989624?v=4" width="60px;" alt="Eduardo Pimenta de Carvalho" style="border-radius:50%"/><br /><sub><b>Eduardo Pimenta</b></sub></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/Raphafz"><img src="https://avatars.githubusercontent.com/u/102317948?v=4" width="60px;" alt="Raphael Ferraz" style="border-radius:50%"/><br /><sub><b>Raphael Ferraz</b></sub></a>
+</div>
+
+---
+
 <div align="center">
 
 ---
