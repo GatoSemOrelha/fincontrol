@@ -59,12 +59,25 @@ fi
 echo "[5/6] Criando link de storage..."
 php artisan storage:link --force --no-interaction 2>/dev/null || true
 
-# 6. Otimizar cache
-echo "[6/6] Otimizando aplicação (Cache de config, rotas e views)..."
-php artisan config:cache --no-interaction 2>/dev/null || true
-php artisan route:cache --no-interaction 2>/dev/null || true
-php artisan view:cache --no-interaction 2>/dev/null || true
-php artisan event:cache --no-interaction 2>/dev/null || true
+# 6. Otimizar ou Limpar cache (dependendo do ambiente)
+if [ "$APP_ENV" = "production" ]; then
+    echo "[6/7] Otimizando aplicação (Cache de config, rotas e views)..."
+    php artisan config:cache --no-interaction 2>/dev/null || true
+    php artisan route:cache --no-interaction 2>/dev/null || true
+    php artisan view:cache --no-interaction 2>/dev/null || true
+    php artisan event:cache --no-interaction 2>/dev/null || true
+else
+    echo "[6/7] Ambiente local detectado. Limpando caches para live-reload..."
+    php artisan config:clear --no-interaction 2>/dev/null || true
+    php artisan route:clear --no-interaction 2>/dev/null || true
+    php artisan view:clear --no-interaction 2>/dev/null || true
+    php artisan cache:clear --no-interaction 2>/dev/null || true
+fi
+
+# 7. Corrigir permissões garantindo acesso do servidor web
+echo "[7/7] Corrigindo permissões das pastas de armazenamento..."
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
 echo ""
 echo "============================================"

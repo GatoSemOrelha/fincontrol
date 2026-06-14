@@ -32,6 +32,10 @@ services:
       - QUEUE_CONNECTION=database
       - LOG_CHANNEL=stack
     volumes:
+      - ./resources:/var/www/html/resources
+      - ./public:/var/www/html/public
+      - ./app:/var/www/html/app
+      - ./routes:/var/www/html/routes
       - app-storage:/var/www/html/storage
     depends_on:
       db:
