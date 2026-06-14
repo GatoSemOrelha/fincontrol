@@ -11,6 +11,7 @@
     </script>
     <title>@yield('title', 'FinControl') — Gestão Financeira</title>
     <meta name="description" content="Sistema de gestão financeira empresarial">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=1.1.1">
     <meta name="view-transition" content="same-origin">
