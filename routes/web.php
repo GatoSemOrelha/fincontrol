@@ -15,6 +15,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,11 +32,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Troca de Idioma (Público)
 Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
 
+// ─── Landing Page (Pública) ───────────────────────
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+
 // ─── Rotas autenticadas ───────────────────────────
 Route::middleware(['auth'])->group(function () {
-
-    // Redirect raiz para dashboard
-    Route::get('/', fn () => redirect()->route('dashboard'));
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
