@@ -56,9 +56,10 @@ Route::middleware(['auth'])->group(function () {
     // Clientes
     Route::resource('clients', ClientController::class)->except(['create', 'edit', 'show']);
 
-    // Cartões de crédito
+    // Cartões de crédito (RF19, RF20, RF21)
     Route::resource('credit-cards', CreditCardController::class)->except(['create', 'edit', 'show']);
     Route::post('/credit-cards/{creditCard}/pay-invoice', [CreditCardController::class, 'payInvoice'])->name('credit-cards.pay-invoice');
+    Route::post('/credit-cards/{creditCard}/installments', [CreditCardController::class, 'storeInstallment'])->name('credit-cards.installments.store');
 
     // Investimentos
     Route::resource('investments', InvestmentController::class)->except(['create', 'edit', 'show', 'destroy']);

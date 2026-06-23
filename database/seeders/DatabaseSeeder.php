@@ -17,9 +17,11 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             BankAccountSeeder::class,
+            CreditCardSeeder::class,
             CategorySeeder::class,
             ClientSeeder::class,
             TransactionSeeder::class,
+            CreditCardPurchaseSeeder::class,
         ]);
     }
 }

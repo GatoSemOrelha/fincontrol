@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Client;
 use App\Models\CreditCard;
 use App\Models\Transaction;
+use App\Services\CreditCardService;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -16,11 +17,13 @@ use Illuminate\Support\Facades\Cache;
  * Controller: TransactionController
  *
  * CRUD completo de lançamentos financeiros.
+ * RF20 / RF21 — Compras parceladas no cartão via transactions.
  */
 class TransactionController extends Controller
 {
     public function __construct(
         private TransactionService $transactionService,
+        private CreditCardService $creditCardService,
     ) {}
 
     /**
@@ -52,9 +55,34 @@ class TransactionController extends Controller
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
 
-        $invoiceFile = $request->file('invoice_document');
+        $this->assertBankAccountBelongsToUser($request->user()->id, (int) $data['bank_account_id']);
 
-        $transaction = $this->transactionService->create($data, $invoiceFile);
+        if (! empty($data['credit_card_id']) && $data['transaction_type'] === 'EXPENSE') {
+            $this->assertCreditCardBelongsToUser($request->user()->id, (int) $data['credit_card_id']);
+
+            $purchaseData = [
+                'user_id' => $data['user_id'],
+                'credit_card_id' => $data['credit_card_id'],
+                'description' => $data['description'],
+                'amount' => $data['amount'],
+                'installments' => (int) ($data['installments'] ?? 1),
+                'purchase_date' => $data['purchase_date'],
+                'bank_account_id' => $data['bank_account_id'],
+                'category_id' => $data['category_id'] ?? null,
+                'client_id' => $data['client_id'] ?? null,
+            ];
+
+            $created = $this->creditCardService->processInstallmentPurchase($purchaseData);
+
+            $message = count($created) > 1
+                ? count($created).' parcelas criadas no cartão com sucesso!'
+                : 'Lançamento no cartão criado com sucesso!';
+
+            return redirect()->route('transactions.index')->with('success', $message);
+        }
+
+        $invoiceFile = $request->file('invoice_document');
+        $this->transactionService->create($data, $invoiceFile);
 
         return redirect()->route('transactions.index')
             ->with('success', 'Lançamento criado com sucesso!');
@@ -129,5 +157,19 @@ class TransactionController extends Controller
         );
 
         return response()->json($impact);
+    }
+
+    private function assertBankAccountBelongsToUser(int $userId, int $bankAccountId): void
+    {
+        if (! BankAccount::where('id', $bankAccountId)->where('user_id', $userId)->exists()) {
+            abort(403, 'Conta bancária inválida para este usuário.');
+        }
+    }
+
+    private function assertCreditCardBelongsToUser(int $userId, int $creditCardId): void
+    {
+        if (! CreditCard::where('id', $creditCardId)->where('user_id', $userId)->exists()) {
+            abort(403, 'Cartão de crédito inválido para este usuário.');
+        }
     }
 }

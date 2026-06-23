@@ -6,7 +6,7 @@
     <span class="topbar-title">{{ __('Lançamentos') }}</span>
     <div class="topbar-actions">
         @if(auth()->user()->isAdmin())
-            <button class="btn btn-primary" onclick="openModal('modal-novo')">
+            <button class="btn btn-primary" onclick="openModal('modal-novo'); toggleCreditCardFields();">
                 <i class="ti ti-plus"></i>{{ __('Novo lançamento') }}
             </button>
         @endif
@@ -120,14 +120,18 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">{{ __('Tipo') }}</label>
-                    <select name="transaction_type" id="new-type" required>
+                    <select name="transaction_type" id="new-type" required onchange="toggleCreditCardFields()">
                         <option value="INCOME">{{ __('Entrada') }}</option>
                         <option value="EXPENSE">{{ __('Saída') }}</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="field-due-date">
                     <label class="form-label">{{ __('Data de vencimento') }}</label>
-                    <input type="date" name="due_date" required>
+                    <input type="date" name="due_date" id="new-due-date">
+                </div>
+                <div class="form-group" id="field-purchase-date" style="display:none">
+                    <label class="form-label">{{ __('Data da compra') }}</label>
+                    <input type="date" name="purchase_date" id="new-purchase-date" value="{{ now()->format('Y-m-d') }}">
                 </div>
             </div>
             <div class="form-group">
@@ -147,6 +151,21 @@
                             <option value="{{ $account->id }}">{{ $account->name }}</option>
                         @endforeach
                     </select>
+                </div>
+            </div>
+            <div class="form-row" id="credit-card-fields" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">{{ __('Cartão de crédito') }}</label>
+                    <select name="credit_card_id" id="new-credit-card" onchange="toggleCreditCardFields()">
+                        <option value="">{{ __('— Nenhum (débito em conta) —') }}</option>
+                        @foreach($creditCards as $card)
+                            <option value="{{ $card->id }}">{{ $card->displayName() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" id="field-installments" style="display:none">
+                    <label class="form-label">{{ __('Número de Parcelas') }}</label>
+                    <input type="number" name="installments" id="new-installments" min="1" max="48" value="1" placeholder="1">
                 </div>
             </div>
             {{-- Alerta de saldo negativo --}}
@@ -298,12 +317,47 @@
     /**
      * RF04 — Verificação de impacto no saldo via AJAX.
      */
+    function toggleCreditCardFields() {
+        const typeEl = document.getElementById('new-type');
+        const cardEl = document.getElementById('new-credit-card');
+        if (!typeEl || !cardEl) return;
+
+        const type = typeEl.value;
+        const cardId = cardEl.value;
+        const isExpense = type === 'EXPENSE';
+        const hasCard = isExpense && cardId !== '';
+
+        const cardFields = document.getElementById('credit-card-fields');
+        const installmentsField = document.getElementById('field-installments');
+        const dueDateField = document.getElementById('field-due-date');
+        const purchaseDateField = document.getElementById('field-purchase-date');
+        const dueDateInput = document.getElementById('new-due-date');
+        const purchaseDateInput = document.getElementById('new-purchase-date');
+        const installmentsInput = document.getElementById('new-installments');
+
+        cardFields.style.display = isExpense ? 'grid' : 'none';
+        installmentsField.style.display = hasCard ? 'block' : 'none';
+        dueDateField.style.display = hasCard ? 'none' : 'block';
+        purchaseDateField.style.display = hasCard ? 'block' : 'none';
+
+        dueDateInput.required = isExpense && !hasCard;
+        purchaseDateInput.required = hasCard;
+        installmentsInput.required = hasCard;
+
+        if (!hasCard) {
+            document.getElementById('balance-alert').style.display = 'none';
+        } else {
+            checkImpact();
+        }
+    }
+
     function checkImpact() {
         const amount = parseFloat(document.getElementById('new-amount').value);
         const type = document.getElementById('new-type').value;
         const accountId = document.getElementById('new-account').value;
+        const cardId = document.getElementById('new-credit-card').value;
 
-        if (!amount || amount <= 0 || type !== 'EXPENSE') {
+        if (!amount || amount <= 0 || type !== 'EXPENSE' || cardId) {
             document.getElementById('balance-alert').style.display = 'none';
             return;
         }
@@ -328,6 +382,10 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', toggleCreditCardFields);
+    document.addEventListener('turbo:load', toggleCreditCardFields);
+    document.addEventListener('turbo:render', toggleCreditCardFields);
 </script>
 @endpush
 @endsection
