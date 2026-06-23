@@ -1,0 +1,2 @@
+# Scripts shell usados em containers Linux devem manter LF
+docker/entrypoint.sh text eol=lf
