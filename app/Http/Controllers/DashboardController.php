@@ -65,16 +65,20 @@ class DashboardController extends Controller
         // Receitas por cliente (tabela)
         $incomeByClient = $this->reportService->getIncomeByClient($user->id, $year, $month);
 
-        return view('dashboard.index', compact(
-            'totals',
-            'variations',
-            'accounts',
-            'consolidatedBalance',
-            'negativeAccounts',
-            'incomeByCategory',
-            'incomeByClient',
-            'year',
-            'month',
-        ));
+        // Projeção do Fluxo de Caixa (Dashboard)
+        $cashFlowData = $this->cashFlowService->project($user->id, 6);
+
+        return view('dashboard.index', [
+            'totals' => $totals,
+            'variations' => $variations,
+            'accounts' => $accounts,
+            'consolidatedBalance' => $consolidatedBalance,
+            'negativeAccounts' => $negativeAccounts,
+            'incomeByCategory' => $incomeByCategory,
+            'incomeByClient' => $incomeByClient,
+            'year' => $year,
+            'month' => $month,
+            'cashFlowData' => $cashFlowData,
+        ]);
     }
 }

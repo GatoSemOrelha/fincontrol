@@ -14,6 +14,7 @@
     <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=1.1.1">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="view-transition" content="same-origin">
     <script type="module">
         import * as Turbo from 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js';
@@ -108,6 +109,7 @@
                         <i class="ti ti-chart-line"></i>{{ __('Investimentos') }}
                     </a>
                 </div>
+                <div class="divider" style="margin: 4px 16px; opacity: 0.5;"></div>
                 <div class="nav-section">
                     <div class="nav-label">{{ __('Cadastros') }}</div>
                     <a href="{{ route('clients.index') }}" class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
@@ -120,6 +122,7 @@
                         <i class="ti ti-repeat"></i>{{ __('Despesas fixas') }}
                     </a>
                 </div>
+                <div class="divider" style="margin: 4px 16px; opacity: 0.5;"></div>
                 <div class="nav-section">
                     <div class="nav-label">{{ __('Relatórios') }}</div>
                     <a href="{{ route('reports.index') }}" class="nav-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
@@ -132,6 +135,7 @@
                         <i class="ti ti-history"></i>{{ __('Auditoria') }}
                     </a>
                 </div>
+                <div class="divider" style="margin: 4px 16px; opacity: 0.5;"></div>
                 <div class="nav-section">
                     <div class="nav-label">{{ __('Configurações') }}</div>
                     <a href="{{ route('settings.index') }}" class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">

@@ -26,6 +26,7 @@ class StoreCreditCardInstallmentRequest extends FormRequest
             'bank_account_id' => 'required|exists:bank_accounts,id',
             'category_id' => 'nullable|exists:categories,id',
             'client_id' => 'nullable|exists:clients,id',
+            'is_recurring' => 'nullable|boolean',
         ];
     }
 

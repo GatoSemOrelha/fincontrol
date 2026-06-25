@@ -39,15 +39,15 @@
     <div class="metrics-row" style="margin-bottom:20px">
         <div class="metric-card">
             <div class="metric-label">{{ __('Receitas') }}</div>
-            <div class="metric-value" @style(['color' => 'var(--color-text-success)'])>{{ money($report->total_income) }}</div>
+            <div class="metric-value" @style(['color' => '#4ade80'])>{{ money($report->total_income) }}</div>
         </div>
         <div class="metric-card">
             <div class="metric-label">{{ __('Despesas') }}</div>
-            <div class="metric-value" @style(['color' => 'var(--color-text-danger)'])>{{ money($report->total_expense) }}</div>
+            <div class="metric-value" @style(['color' => '#f87171'])>{{ money($report->total_expense) }}</div>
         </div>
         <div class="metric-card">
             <div class="metric-label">{{ __('Resultado líquido') }}</div>
-            <div class="metric-value" @style(['color' => $report->net_result >= 0 ? 'var(--color-text-success)' : 'var(--color-text-danger)'])>
+            <div class="metric-value" @style(['color' => $report->net_result >= 0 ? '#4ade80' : '#f87171'])>
                 {{ money($report->net_result) }}
             </div>
         </div>
@@ -58,8 +58,8 @@
             <div class="section-title">{{ __('Receitas por categoria') }}</div>
             @foreach($incomeByCategory as $cat)
                 <div class="bar-row">
-                    <div class="bar-label"><span>{{ $cat['category_name'] }}</span><span>{{ money($cat['total']) }}</span></div>
-                    <div class="progress-bg"><div class="progress-fill" @style(['width' => $cat['percentage'] . '%', 'background-color' => 'var(--color-background-success)'])></div></div>
+                    <div class="bar-label"><span>{{ $cat['category_name'] }}</span><span style="color:#4ade80">{{ money($cat['total']) }}</span></div>
+                    <div class="progress-bg"><div class="progress-fill" @style(['width' => $cat['percentage'] . '%', 'background-color' => '#4ade80'])></div></div>
                 </div>
             @endforeach
         </div>
@@ -67,8 +67,8 @@
             <div class="section-title">{{ __('Despesas por categoria') }}</div>
             @foreach($expensesByCategory as $cat)
                 <div class="bar-row">
-                    <div class="bar-label"><span>{{ $cat['category_name'] }}</span><span>{{ money($cat['total']) }}</span></div>
-                    <div class="progress-bg"><div class="progress-fill" @style(['width' => $cat['percentage'] . '%', 'background-color' => 'var(--color-background-danger)'])></div></div>
+                    <div class="bar-label"><span>{{ $cat['category_name'] }}</span><span style="color:#f87171">{{ money($cat['total']) }}</span></div>
+                    <div class="progress-bg"><div class="progress-fill" @style(['width' => $cat['percentage'] . '%', 'background-color' => '#f87171'])></div></div>
                 </div>
             @endforeach
         </div>

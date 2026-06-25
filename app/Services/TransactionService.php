@@ -174,8 +174,17 @@ class TransactionService
     public function list(int $userId, array $filters = [], int $perPage = 20)
     {
         $query = Transaction::with(['bankAccount', 'category', 'client', 'creditCard'])
-            ->where('user_id', $userId)
-            ->orderBy('due_date', 'desc');
+            ->where('user_id', $userId);
+
+        // Sorting: Prioritizing today and future dates (Item 5)
+        $query->orderByRaw('CASE WHEN due_date >= CURDATE() THEN 0 ELSE 1 END')
+              ->orderBy('due_date', 'asc');
+
+        if (empty($filters['credit_card_id'])) {
+            $query->whereNull('credit_card_id');
+        } else {
+            $query->where('credit_card_id', $filters['credit_card_id']);
+        }
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -185,24 +194,28 @@ class TransactionService
             $query->where('transaction_type', $filters['transaction_type']);
         }
 
+        if (! empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (! empty($filters['period'])) {
+            $days = (int) $filters['period'];
+            $query->whereBetween('due_date', [now()->toDateString(), now()->addDays($days)->toDateString()]);
+        } else {
+            if (! empty($filters['date_from'])) {
+                $query->where('due_date', '>=', $filters['date_from']);
+            }
+            if (! empty($filters['date_to'])) {
+                $query->where('due_date', '<=', $filters['date_to']);
+            }
+        }
+
         if (! empty($filters['bank_account_id'])) {
             $query->forAccount($filters['bank_account_id']);
         }
 
-        if (! empty($filters['category_id'])) {
-            $query->forCategory($filters['category_id']);
-        }
-
         if (! empty($filters['client_id'])) {
             $query->forClient($filters['client_id']);
-        }
-
-        if (! empty($filters['date_from'])) {
-            $query->where('due_date', '>=', $filters['date_from']);
-        }
-
-        if (! empty($filters['date_to'])) {
-            $query->where('due_date', '<=', $filters['date_to']);
         }
 
         return $query->paginate($perPage);
@@ -217,6 +230,7 @@ class TransactionService
         $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
 
         $totals = Transaction::where('user_id', $userId)
+            ->whereNull('credit_card_id')
             ->whereBetween('due_date', [$startDate, $endDate])
             ->selectRaw("
                 COALESCE(SUM(CASE WHEN transaction_type = 'INCOME' THEN amount ELSE 0 END), 0) as total_income,

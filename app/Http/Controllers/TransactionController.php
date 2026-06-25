@@ -32,7 +32,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $filters = $request->only(['status', 'transaction_type', 'bank_account_id', 'category_id', 'client_id', 'date_from', 'date_to']);
+        $filters = $request->only(['status', 'transaction_type', 'bank_account_id', 'category_id', 'client_id', 'date_from', 'date_to', 'period']);
 
         $transactions = $this->transactionService->list($user->id, $filters);
         $bankAccounts = BankAccount::where('user_id', $user->id)->get();
@@ -42,9 +42,34 @@ class TransactionController extends Controller
         $clients = Client::where('user_id', $user->id)->get();
         $creditCards = CreditCard::where('user_id', $user->id)->get();
 
-        return view('transactions.index', compact(
-            'transactions', 'bankAccounts', 'categories', 'clients', 'creditCards', 'filters'
-        ));
+        // Dados para o Gráfico do Topo (Agrupado por data)
+        $chartQuery = Transaction::where('user_id', $user->id)
+            ->whereNull('credit_card_id');
+        
+        if (! empty($filters['period'])) {
+            $days = (int) $filters['period'];
+            $chartQuery->whereBetween('due_date', [now()->toDateString(), now()->addDays($days)->toDateString()]);
+        } else {
+            $chartQuery->whereBetween('due_date', [
+                $filters['date_from'] ?? now()->startOfMonth()->toDateString(),
+                $filters['date_to'] ?? now()->endOfMonth()->toDateString()
+            ]);
+        }
+        
+        $chartData = $chartQuery->selectRaw('DATE(due_date) as date, transaction_type, SUM(amount) as total')
+            ->groupBy('date', 'transaction_type')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return view('transactions.index', [
+            'transactions' => $transactions,
+            'bankAccounts' => $bankAccounts,
+            'categories' => $categories,
+            'clients' => $clients,
+            'creditCards' => $creditCards,
+            'filters' => $filters,
+            'chartData' => $chartData,
+        ]);
     }
 
     /**

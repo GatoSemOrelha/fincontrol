@@ -175,10 +175,39 @@ class CreditCardService
 
         $summary = $this->getInvoiceSummary($card, $month, $year);
 
-        DB::transaction(function () use ($card, $bankAccountId, $summary) {
+        DB::transaction(function () use ($card, $bankAccountId, $summary, $month, $year) {
+            $totalAmount = $summary['total'];
+
+            if ($totalAmount > 0) {
+                // Cria uma transação única para o total da fatura
+                $invoiceTransaction = Transaction::create([
+                    'description' => 'Pagamento Fatura: ' . $card->name . ' (' . str_pad($month, 2, '0', STR_PAD_LEFT) . '/' . $year . ')',
+                    'amount' => $totalAmount,
+                    'due_date' => now()->toDateString(),
+                    'payment_date' => now()->toDateString(),
+                    'transaction_type' => TransactionType::EXPENSE,
+                    'status' => TransactionStatus::PAID,
+                    'user_id' => $card->user_id,
+                    'bank_account_id' => $bankAccountId,
+                    'credit_card_id' => null, // Deixa nulo para aparecer no fluxo de caixa geral
+                ]);
+
+                // Ajusta o saldo da conta pelo total da fatura
+                app(BankAccountService::class)->adjustBalance(
+                    $invoiceTransaction->bankAccount,
+                    $totalAmount,
+                    TransactionType::EXPENSE->value
+                );
+            }
+
             foreach ($summary['transactions'] as $transaction) {
-                $transaction->update(['bank_account_id' => $bankAccountId]);
-                $this->transactionService->markAsPaid($transaction);
+                // Atualiza o banco e marca como pago sem ajustar o saldo individualmente
+                $transaction->update([
+                    'bank_account_id' => $bankAccountId,
+                    'status' => TransactionStatus::PAID,
+                    'payment_date' => now()->toDateString()
+                ]);
+                $transaction->logCustomAudit('paid', ['status' => 'PENDING'], ['status' => 'PAID']);
             }
         });
     }

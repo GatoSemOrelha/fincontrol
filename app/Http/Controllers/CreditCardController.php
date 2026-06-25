@@ -63,6 +63,34 @@ class CreditCardController extends Controller
         ])->with('success', 'Cartão atualizado com sucesso!');
     }
 
+    public function show(Request $request, CreditCard $creditCard)
+    {
+        $this->ensureOwnsCard($request, $creditCard);
+
+        $futureOnly = $request->boolean('future_only');
+        $month = (int) $request->get('month', now()->month);
+        $year = (int) $request->get('year', now()->year);
+
+        $query = $creditCard->transactions()->with(['category', 'client']);
+
+        if ($futureOnly) {
+            $query->where('due_date', '>', now()->toDateString())
+                  ->orderBy('due_date', 'asc');
+        } else {
+            // Get billing period for the selected month/year
+            $billingPeriod = $this->creditCardService->getBillingPeriod($creditCard, $year, $month);
+            $query->whereBetween('due_date', [$billingPeriod[0]->toDateString(), $billingPeriod[1]->toDateString()])
+                  ->orderBy('due_date', 'desc');
+        }
+
+        $transactions = $query->paginate(20);
+
+        // Keep existing query parameters when paginating
+        $transactions->appends($request->all());
+
+        return view('credit-cards.show', compact('creditCard', 'transactions', 'month', 'year', 'futureOnly'));
+    }
+
     /**
      * RF20 / RF21 — Compra parcelada no cartão (somente transactions).
      */
@@ -75,6 +103,20 @@ class CreditCardController extends Controller
         $data['credit_card_id'] = $creditCard->id;
 
         $this->assertBankAccountBelongsToUser($request->user()->id, (int) $data['bank_account_id']);
+
+        if ($request->boolean('is_recurring')) {
+            \App\Models\RecurringExpense::create([
+                'description' => $data['description'],
+                'amount' => $data['amount'],
+                'day_of_month' => \Carbon\Carbon::parse($data['purchase_date'])->day,
+                'bank_account_id' => $data['bank_account_id'],
+                'category_id' => $data['category_id'] ?? null,
+                'user_id' => $data['user_id'],
+                'credit_card_id' => $data['credit_card_id'],
+                'is_active' => true,
+            ]);
+            $data['installments'] = 1; // Recorrente é 1 parcela por vez gerada mensalmente
+        }
 
         $created = $this->creditCardService->processInstallmentPurchase($data);
 

@@ -19,6 +19,7 @@ class RecurringExpense extends Model
         'category_id',
         'user_id',
         'is_active',
+        'credit_card_id',
     ];
 
     protected $casts = [

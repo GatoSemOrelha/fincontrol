@@ -24,11 +24,13 @@ class CreditCard extends Model
         'closing_day',
         'due_day',
         'user_id',
+        'credit_limit',
     ];
 
     protected $casts = [
         'closing_day' => 'integer',
         'due_day' => 'integer',
+        'credit_limit' => 'decimal:2',
     ];
 
     // ─── Relacionamentos ──────────────────────────
@@ -67,5 +69,18 @@ class CreditCard extends Model
     public function displayName(): string
     {
         return "{$this->name} •••• {$this->last_four_digits}";
+    }
+
+    /**
+     * Calcula o limite disponível (limite total - faturas pendentes).
+     */
+    public function getAvailableLimit(): float
+    {
+        if ($this->credit_limit <= 0) {
+            return 0; // Se não tem limite cadastrado
+        }
+
+        $used = $this->getOpenInvoiceTotal(); // Ou sum de todas as compras pendentes
+        return max(0, $this->credit_limit - $used);
     }
 }

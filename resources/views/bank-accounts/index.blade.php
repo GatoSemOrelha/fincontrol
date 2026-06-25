@@ -60,6 +60,22 @@
                             <i class="ti ti-alert-triangle"></i>{{ __('Saldo negativo') }}
                         </div>
                     @endif
+                    @if($account->pix_key || $account->agency)
+                        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;background:var(--color-background-secondary);padding:8px;border-radius:6px">
+                            @if($account->agency)
+                                <div><strong>{{ __('Agência:') }}</strong> {{ $account->agency }}</div>
+                            @endif
+                            @if($account->account_number)
+                                <div><strong>{{ __('Conta:') }}</strong> {{ $account->account_number }}</div>
+                            @endif
+                            @if($account->pix_key)
+                                <div><strong>{{ __('Pix:') }}</strong> {{ $account->pix_key }}</div>
+                            @endif
+                            @if($account->document)
+                                <div><strong>{{ __('CPF/CNPJ:') }}</strong> {{ $account->document }}</div>
+                            @endif
+                        </div>
+                    @endif
                 </div>
                 <div class="divider"></div>
                 <div {!! $account->isNegative() ? 'style="font-size:22px;font-weight:500;color:var(--color-text-danger)"' : 'style="font-size:22px;font-weight:500;color:var(--color-text-success)"' !!}>
@@ -70,6 +86,11 @@
                     <a href="{{ route('transactions.index', ['bank_account_id' => $account->id]) }}" class="btn" style="font-size:12px;flex:1;justify-content:center">
                         <i class="ti ti-list"></i>{{ __('Extrato') }}
                     </a>
+                    @if(auth()->user()->isAdmin())
+                        <button class="btn btn-secondary" onclick="openModal('modal-edit-{{ $account->id }}')" style="font-size:12px;padding:8px">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -93,6 +114,26 @@
                 <label class="form-label">{{ __('Saldo inicial') }}</label>
                 <input type="number" name="initial_balance" step="0.01" placeholder="0,00" required>
             </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">{{ __('Agência') }}</label>
+                    <input type="text" name="agency" placeholder="{{ __('Ex: 0001') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ __('Número da Conta') }}</label>
+                    <input type="text" name="account_number" placeholder="{{ __('Ex: 12345-6') }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">{{ __('Chave Pix') }}</label>
+                    <input type="text" name="pix_key" placeholder="{{ __('Telefone, CPF, E-mail ou Aleatória') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ __('CPF/CNPJ (Atrelado à conta)') }}</label>
+                    <input type="text" name="document" placeholder="{{ __('Somente números') }}">
+                </div>
+            </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
                 <button type="button" class="btn" onclick="closeModal('modal-conta')">{{ __('Cancelar') }}</button>
                 <button type="submit" class="btn btn-primary">{{ __('Salvar') }}</button>
@@ -100,4 +141,47 @@
         </form>
     </div>
 </div>
+
+@foreach($accounts as $account)
+<div class="modal-overlay" id="modal-edit-{{ $account->id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>{{ __('Editar conta bancária') }}</h3>
+            <i class="ti ti-x" style="cursor:pointer;font-size:18px;color:var(--color-text-secondary)" onclick="closeModal('modal-edit-{{ $account->id }}')"></i>
+        </div>
+        <form method="POST" action="{{ route('bank-accounts.update', $account) }}">
+            @csrf @method('PUT')
+            <div class="form-group">
+                <label class="form-label">{{ __('Nome da conta') }}</label>
+                <input type="text" name="name" value="{{ $account->name }}" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">{{ __('Agência') }}</label>
+                    <input type="text" name="agency" value="{{ $account->agency }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ __('Número da Conta') }}</label>
+                    <input type="text" name="account_number" value="{{ $account->account_number }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">{{ __('Chave Pix') }}</label>
+                    <input type="text" name="pix_key" value="{{ $account->pix_key }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ __('CPF/CNPJ') }}</label>
+                    <input type="text" name="document" value="{{ $account->document }}">
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+                <button type="button" class="btn" onclick="closeModal('modal-edit-{{ $account->id }}')">{{ __('Cancelar') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Salvar alterações') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endforeach
+
 @endsection

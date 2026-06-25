@@ -298,6 +298,14 @@
     </div>
 
     {{-- Restante do Dashboard - Gráficos e Tabelas --}}
+    {{-- Gráfico Fluxo de Caixa --}}
+    <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); margin-top: 24px;">
+        <div class="section-title">{{ __('Fluxo de Caixa (Projeção 6 Meses)') }}</div>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="cashFlowChart"></canvas>
+        </div>
+    </div>
+
     <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-top: 24px;">
         {{-- Receitas por categoria --}}
         <div class="card" style="border-radius: 20px; border-color: rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); display: flex; flex-direction: column;">
@@ -360,4 +368,146 @@
             </table>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    (function() {
+        const ctx = document.getElementById('cashFlowChart');
+        if (!ctx) return;
+
+        const cashFlowData = @json($cashFlowData['months']);
+        if (!cashFlowData || cashFlowData.length === 0) return;
+
+        const labels = cashFlowData.map(item => item.label);
+        const incomeData = cashFlowData.map(item => item.projected_income);
+        const expenseData = cashFlowData.map(item => item.projected_expense);
+        const balanceData = cashFlowData.map(item => item.running_balance);
+
+        const ctxCanvas = ctx.getContext('2d');
+        
+        let incomeGradient = ctxCanvas.createLinearGradient(0, 0, 0, 300);
+        incomeGradient.addColorStop(0, '#4ade80');
+        incomeGradient.addColorStop(1, 'rgba(34, 197, 94, 0.2)');
+
+        let expenseGradient = ctxCanvas.createLinearGradient(0, 0, 0, 300);
+        expenseGradient.addColorStop(0, '#f87171');
+        expenseGradient.addColorStop(1, 'rgba(239, 68, 68, 0.2)');
+
+        let balanceGradient = ctxCanvas.createLinearGradient(0, 0, 0, 300);
+        balanceGradient.addColorStop(0, 'rgba(96, 165, 250, 0.15)');
+        balanceGradient.addColorStop(1, 'rgba(96, 165, 250, 0)');
+
+        Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+        Chart.defaults.color = '#9ca3af';
+
+        if (window.dashboardTopChart instanceof Chart) {
+            window.dashboardTopChart.destroy();
+        }
+
+        window.dashboardTopChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '{{ __("Entradas") }}',
+                        data: incomeData,
+                        backgroundColor: incomeGradient,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.4,
+                        order: 2
+                    },
+                    {
+                        label: '{{ __("Saídas") }}',
+                        data: expenseData,
+                        backgroundColor: expenseGradient,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.4,
+                        order: 3
+                    },
+                    {
+                        label: '{{ __("Saldo Acumulado") }}',
+                        data: balanceData,
+                        type: 'line',
+                        borderColor: '#60a5fa',
+                        backgroundColor: balanceGradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#0f172a',
+                        pointBorderColor: '#60a5fa',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4,
+                        fill: true,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { 
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 12, weight: '500' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { 
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: { 
+                            font: { size: 11 },
+                            callback: function(value) {
+                                return new Intl.NumberFormat('pt-BR', { notation: 'compact', style: 'currency', currency: 'BRL' }).format(value);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    })();
+</script>
+@endpush
 @endsection

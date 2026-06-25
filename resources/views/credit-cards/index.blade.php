@@ -73,9 +73,12 @@
                     </div>
                     <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:12px">{{ $card->pending_count }} {{ __('lançamentos pendentes no período') }}</div>
 
-                    <button class="btn btn-sm" onclick="openModal('modal-invoice-{{ $card->id }}')" style="width:100%;justify-content:center">
+                    <button class="btn btn-sm" onclick="openModal('modal-invoice-{{ $card->id }}')" style="width:100%;justify-content:center;margin-bottom:8px">
                         <i class="ti ti-list-details"></i>{{ __('Ver detalhes da fatura') }}
                     </button>
+                    <a href="{{ route('credit-cards.show', $card) }}" class="btn btn-sm" style="width:100%;justify-content:center;background:var(--color-background-secondary);color:var(--color-text-primary);text-decoration:none">
+                        <i class="ti ti-filter"></i>{{ __('Lançamentos detalhados') }}
+                    </a>
 
                     @if(auth()->user()->isAdmin())
                         <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
@@ -114,6 +117,12 @@
                     <input type="text" name="last_four_digits" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="1234" required>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">{{ __('Limite do Cartão') }}</label>
+                    <input type="number" step="0.01" name="credit_limit" min="0" placeholder="Ex: 5000.00">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
                     <label class="form-label">{{ __('Dia fechamento') }}</label>
                     <input type="number" name="closing_day" min="1" max="31" required>
                 </div>
@@ -151,6 +160,12 @@
                     <label class="form-label">{{ __('4 últimos dígitos') }}</label>
                     <input type="text" name="last_four_digits" maxlength="4" pattern="[0-9]{4}" value="{{ $card->last_four_digits }}" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">{{ __('Limite do Cartão') }}</label>
+                    <input type="number" step="0.01" name="credit_limit" min="0" value="{{ $card->credit_limit }}">
+                </div>
+            </div>
+            <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">{{ __('Dia fechamento') }}</label>
                     <input type="number" name="closing_day" min="1" max="31" value="{{ $card->closing_day }}" required>
@@ -302,7 +317,11 @@
                     </select>
                 </div>
             </div>
-            <div style="font-size:12px;color:var(--color-text-tertiary);margin-bottom:12px">
+            <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                <input type="checkbox" name="is_recurring" id="is_recurring_{{ $card->id }}" value="1" style="width:auto;margin:0">
+                <label for="is_recurring_{{ $card->id }}" style="margin:0;font-size:14px">{{ __('Assinatura/Plano Recorrente (Cobrado mensalmente)') }}</label>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-tertiary);margin-bottom:12px;margin-top:12px">
                 <i class="ti ti-info-circle"></i>
                 {{ __('As parcelas serão geradas automaticamente em lançamentos, respeitando fechamento e vencimento do cartão.') }}
             </div>

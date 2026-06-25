@@ -29,10 +29,34 @@
                     </option>
                 @endforeach
             </select>
-            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
-            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+            <select name="transaction_type" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+                <option value="">{{ __('Tipo') }}</option>
+                <option value="INCOME" {{ ($filters['transaction_type'] ?? '') == 'INCOME' ? 'selected' : '' }}>{{ __('Entrada') }}</option>
+                <option value="EXPENSE" {{ ($filters['transaction_type'] ?? '') == 'EXPENSE' ? 'selected' : '' }}>{{ __('Saída') }}</option>
+            </select>
+            <select name="category_id" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+                <option value="">{{ __('Categoria') }}</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                @endforeach
+            </select>
+            <select name="period" style="width:auto;font-size:12px;padding:5px 8px" onchange="this.form.submit()">
+                <option value="">{{ __('Período (Personalizado)') }}</option>
+                <option value="7" {{ ($filters['period'] ?? '') == '7' ? 'selected' : '' }}>{{ __('Próximos 7 dias') }}</option>
+                <option value="15" {{ ($filters['period'] ?? '') == '15' ? 'selected' : '' }}>{{ __('Próximos 15 dias') }}</option>
+                <option value="30" {{ ($filters['period'] ?? '') == '30' ? 'selected' : '' }}>{{ __('Próximos 30 dias') }}</option>
+            </select>
+            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" style="width:auto;font-size:12px;padding:5px 8px" onchange="document.querySelector('[name=period]').value=''; this.form.submit()">
+            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" style="width:auto;font-size:12px;padding:5px 8px" onchange="document.querySelector('[name=period]').value=''; this.form.submit()">
         </div>
     </form>
+
+    {{-- Gráfico do topo --}}
+    <div class="card" style="margin-bottom: 24px; padding: 16px; border-radius: 16px;">
+        <div style="height: 200px; width: 100%;">
+            <canvas id="topChart"></canvas>
+        </div>
+    </div>
 
     {{-- Tabela de lançamentos --}}
     <div class="table-wrap">
@@ -317,7 +341,7 @@
     /**
      * RF04 — Verificação de impacto no saldo via AJAX.
      */
-    function toggleCreditCardFields() {
+    window.toggleCreditCardFields = function() {
         const typeEl = document.getElementById('new-type');
         const cardEl = document.getElementById('new-credit-card');
         if (!typeEl || !cardEl) return;
@@ -347,11 +371,11 @@
         if (!hasCard) {
             document.getElementById('balance-alert').style.display = 'none';
         } else {
-            checkImpact();
+            window.checkImpact();
         }
-    }
+    };
 
-    function checkImpact() {
+    window.checkImpact = function() {
         const amount = parseFloat(document.getElementById('new-amount').value);
         const type = document.getElementById('new-type').value;
         const accountId = document.getElementById('new-account').value;
@@ -381,11 +405,149 @@
                 alert.style.display = 'none';
             }
         });
-    }
+    };
 
-    document.addEventListener('DOMContentLoaded', toggleCreditCardFields);
-    document.addEventListener('turbo:load', toggleCreditCardFields);
-    document.addEventListener('turbo:render', toggleCreditCardFields);
+    // Execute exactly once when the script is loaded
+    window.toggleCreditCardFields();
+
+    (function() {
+        const ctx = document.getElementById('topChart');
+        if (!ctx) return;
+
+        const chartData = @json($chartData);
+        if (!chartData || chartData.length === 0) return;
+
+        const dates = [...new Set(chartData.map(d => d.date))].sort();
+        
+        const incomeData = dates.map(date => {
+            const item = chartData.find(d => d.date === date && d.transaction_type === 'INCOME');
+            return item ? parseFloat(item.total) : 0;
+        });
+
+        const expenseData = dates.map(date => {
+            const item = chartData.find(d => d.date === date && d.transaction_type === 'EXPENSE');
+            return item ? parseFloat(item.total) : 0;
+        });
+
+        // Formata data de YYYY-MM-DD para DD/MM
+        const labels = dates.map(date => {
+            const parts = date.split('-');
+            return `${parts[2]}/${parts[1]}`;
+        });
+
+        const ctxCanvas = ctx.getContext('2d');
+        
+        let incomeGradient = ctxCanvas.createLinearGradient(0, 0, 0, 300);
+        incomeGradient.addColorStop(0, 'rgba(34, 197, 94, 0.15)');
+        incomeGradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
+
+        let expenseGradient = ctxCanvas.createLinearGradient(0, 0, 0, 300);
+        expenseGradient.addColorStop(0, 'rgba(239, 68, 68, 0.15)');
+        expenseGradient.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+        Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+        Chart.defaults.color = '#9ca3af';
+
+        if (window.transactionsTopChart instanceof Chart) {
+            window.transactionsTopChart.destroy();
+        }
+
+        window.transactionsTopChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '{{ __("Entradas") }}',
+                        data: incomeData,
+                        borderColor: '#4ade80',
+                        backgroundColor: incomeGradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#1e293b',
+                        pointBorderColor: '#4ade80',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: '{{ __("Saídas") }}',
+                        data: expenseData,
+                        borderColor: '#f87171',
+                        backgroundColor: expenseGradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#1e293b',
+                        pointBorderColor: '#f87171',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { 
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 12, weight: '500' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { 
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: { 
+                            font: { size: 11 },
+                            callback: function(value) {
+                                return new Intl.NumberFormat('pt-BR', { notation: 'compact', style: 'currency', currency: 'BRL' }).format(value);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    })();
 </script>
 @endpush
 @endsection

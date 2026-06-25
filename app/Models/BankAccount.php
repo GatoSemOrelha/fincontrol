@@ -25,6 +25,10 @@ class BankAccount extends Model
         'initial_balance',
         'current_balance',
         'user_id',
+        'pix_key',
+        'document',
+        'agency',
+        'account_number',
     ];
 
     protected $casts = [
